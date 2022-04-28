@@ -187,8 +187,8 @@ class _ExampleAppState extends State<ExampleApp> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _buildTestButton('start', onPressed: _startForegroundTask),
-          _buildTestButton('stop', onPressed: _stopForegroundTask),
+          _buildTestButton('Start', onPressed: _startForegroundTask),
+          _buildTestButton('Stop', onPressed: _stopForegroundTask),
         ],
       ),
     );
