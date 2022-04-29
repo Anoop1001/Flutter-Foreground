@@ -1,11 +1,84 @@
-class ExampleApp extends StatefulWidget {
-  const ExampleApp({Key? key}) : super(key: key);
-
-  @override
-  _ExampleAppState createState() => _ExampleAppState();
+import 'dart:isolate';
+import 'package:flutter/material.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+// The callback function should always be a top-level function.
+void startCallback() {
+  // The setTaskHandler function must be called to handle the task in the background.
+  FlutterForegroundTask.setTaskHandler(FirstTaskHandler());
 }
 
-class _ExampleAppState extends State<ExampleApp> {
+class FirstTaskHandler extends TaskHandler {
+  int updateCount = 0;
+
+  @override
+  Future<void> onStart(DateTime timestamp, SendPort? sendPort) async {
+    // You can use the getData function to get the data you saved.
+    final customData =
+        await FlutterForegroundTask.getData<String>(key: 'customData');
+    print('customData: $customData');
+  }
+
+  @override
+  Future<void> onEvent(DateTime timestamp, SendPort? sendPort) async {
+    FlutterForegroundTask.updateService(
+        notificationTitle: 'FirstTaskHandler',
+        notificationText: timestamp.toString(),
+        callback: updateCount >= 10 ? updateCallback : null);
+
+    // Send data to the main isolate.
+    sendPort?.send(timestamp);
+    sendPort?.send(updateCount);
+
+    updateCount++;
+  }
+
+  @override
+  Future<void> onDestroy(DateTime timestamp) async {
+    // You can use the clearAllData function to clear all the stored data.
+    await FlutterForegroundTask.clearAllData();
+  }
+
+  @override
+  void onButtonPressed(String id) {
+    // Called when the notification button on the Android platform is pressed.
+    print('onButtonPressed >> $id');
+  }
+}
+
+void updateCallback() {
+  FlutterForegroundTask.setTaskHandler(SecondTaskHandler());
+}
+
+class SecondTaskHandler extends TaskHandler {
+  @override
+  Future<void> onStart(DateTime timestamp, SendPort? sendPort) async {
+
+  }
+
+  @override
+  Future<void> onEvent(DateTime timestamp, SendPort? sendPort) async {
+    FlutterForegroundTask.updateService(
+        notificationTitle: 'SecondTaskHandler',
+        notificationText: timestamp.toString());
+
+    // Send data to the main isolate.
+    sendPort?.send(timestamp);
+  }
+
+  @override
+  Future<void> onDestroy(DateTime timestamp) async {
+
+  }
+}
+
+class ForegroundServiceApp extends StatefulWidget {
+  const ForegroundServiceApp({Key? key}) : super(key: key);
+
+  @override
+  _ForegroundServiceAppState createState() => _ForegroundServiceAppState();
+}
+
+class _ForegroundServiceAppState extends State<ForegroundServiceApp> {
   ReceivePort? _receivePort;
 
   Future<void> _initForegroundTask() async {
