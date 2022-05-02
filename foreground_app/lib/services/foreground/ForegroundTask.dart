@@ -21,7 +21,7 @@ class FirstTaskHandler extends TaskHandler {
   @override
   Future<void> onEvent(DateTime timestamp, SendPort? sendPort) async {
     FlutterForegroundTask.updateService(
-        notificationTitle: 'FirstTaskHandler',
+        notificationTitle: 'Foreground Service',
         notificationText: timestamp.toString(),
         callback: updateCount >= 10 ? updateCallback : null);
 
@@ -58,7 +58,7 @@ class SecondTaskHandler extends TaskHandler {
   @override
   Future<void> onEvent(DateTime timestamp, SendPort? sendPort) async {
     FlutterForegroundTask.updateService(
-        notificationTitle: 'SecondTaskHandler',
+        notificationTitle: 'Foreground Service',
         notificationText: timestamp.toString());
 
     // Send data to the main isolate.
